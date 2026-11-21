@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tracking Claude Code in Power BI</title>
+<meta name="description" content="An eight-minute narrated explainer on using service principals and the Power BI activity log to track what Claude Code does through Microsoft's Power BI MCP servers.">
+<meta property="og:title" content="Tracking Claude Code in Power BI">
+<meta property="og:description" content="Does Claude Code's Power BI MCP activity show up in the tenant activity log under a service principal? What's logged, what isn't, and how to filter and track it.">
+<meta property="og:image" content="poster.jpg">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<main>
+  <p class="small"><a href="../">All explainers</a></p>
+  <h1>Tracking Claude Code in Power BI</h1>
+  <p class="sub">An eight-minute narrated explainer on service principals, the Power BI MCP servers and the Get Activity Events admin API · November 2026</p>
+  <video controls preload="metadata" poster="poster.jpg" playsinline>
+    <source src="power-bi-mcp-tracking.mp4" type="video/mp4">
+    Your browser cannot play this video. <a href="power-bi-mcp-tracking.mp4">Download the MP4</a>.
+  </video>
+  <div class="row">
+    <a class="btn" href="interactive.html">Interactive version (animation in the browser)</a>
+    <a class="btn" href="power-bi-mcp-tracking.mp4" download>Download MP4 (21 MB)</a>
+    <a class="btn" href="https://learn.microsoft.com/en-us/power-bi/developer/mcp/">Power BI MCP docs</a>
+  </div>
+
+  <h2>What it covers</h2>
+  <ol>
+    <li><b>Two jobs for a service principal.</b> The actor, which is Claude Code's identity, and the auditor, which is a script that reads the activity log. They need different permissions.</li>
+    <li><b>Hosted Authoring MCP server.</b> It signs in as the person and logs <code>ReadByPowerBIMCP</code> and <code>ModifiedByPowerBIMCP</code> under their name. It has no service principal option.</li>
+    <li><b>Local server with a service principal.</b> Set <code>--authmode=serviceprincipal</code> and the Azure identity variables, and grant workspace Member or Admin access and XMLA read-write. Row-level security is not enforced.</li>
+    <li><b>What gets logged.</b> The local server doesn't log MCP events. It leaves three other trails: XMLA activities such as <code>ConnectFromExternalApplication</code>, workspace monitoring under <code>MCP-PBIModeling</code>, and local audit files.</li>
+    <li><b>The auditor.</b> Turn on "Service principals can access read-only admin APIs" for a security group. Don't give the app admin-consent Power BI permissions, and don't give it Tenant.Read.All.</li>
+    <li><b>Get Activity Events.</b> Each call covers one UTC day, and the log goes back 28 days. You can filter on Activity and UserId, and you get up to 200 requests an hour. Load it into a lakehouse every day, and run one test call to learn the service principal's UserId.</li>
+  </ol>
+
+  <h2>Sources</h2>
+  <ul class="small">
+    <li><a href="https://learn.microsoft.com/en-us/power-bi/developer/mcp/power-bi-authoring-mcp">Power BI Authoring MCP server</a> (hosted vs local, Track MCP usage)</li>
+    <li><a href="https://github.com/microsoft/powerbi-modeling-mcp">microsoft/powerbi-modeling-mcp</a> (service principal mode, audit logs, troubleshooting)</li>
+    <li><a href="https://learn.microsoft.com/en-us/fabric/enterprise/powerbi/service-premium-service-principal">Service principals and the XMLA endpoint</a> and <a href="https://learn.microsoft.com/en-us/fabric/enterprise/powerbi/service-premium-connect-tools">XMLA audit activities</a></li>
+    <li><a href="https://learn.microsoft.com/en-us/fabric/admin/enable-service-principal-admin-apis">Enable service principal authentication for admin APIs</a></li>
+    <li><a href="https://learn.microsoft.com/en-us/rest/api/power-bi/admin/get-activity-events">Admin - Get Activity Events</a> and <a href="https://learn.microsoft.com/en-us/fabric/admin/operation-list">Fabric operation list</a></li>
+    <li><a href="https://learn.microsoft.com/en-us/fabric/fundamentals/workspace-monitoring-overview">Workspace monitoring</a></li>
+  </ul>
+  <p class="small">Facts were checked against Microsoft's documentation on 22 November 2026. Several features are in preview and may change. Microsoft doesn't document two things: the exact UserId a service principal gets in the log, and whether the consumption server is logged. Confirm both in your own tenant. The example log rows, the KQL query and the command line in the video are illustrative.</p>
+</main>
+</body>
+</html>
